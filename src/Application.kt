@@ -42,7 +42,8 @@ fun Application.module(testing: Boolean = false) {
                     val buffer = ByteArray(10)
                     var length = inputStream.read(buffer, 0, buffer.size)
                     while (length != -1) {
-                        result += encoder.encode(buffer).joinToString(separator = "") { it.toString() }
+                        result += encoder.encode(buffer).joinToString(separator = "") { it.toChar().toString() }
+//                        result += buffer.joinToString(separator = "") { it.toChar().toString() }
                         length = inputStream.read(buffer)
                     }
                     call.respond(mapOf("content" to result))
