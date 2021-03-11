@@ -13,6 +13,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.*
 import io.ktor.jackson.*
+import java.io.FileReader
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -30,16 +31,22 @@ fun Application.module(testing: Boolean = false) {
         get("{path}") {
             val filePath = call.parameters["path"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Bad path"))
+//            val resultObject = File("~/Downloads/ktor-demo$filePath")
             val resultObject = File(filePath)
             if (resultObject.isDirectory) {
                 call.respond(resultObject.list())
             } else {
-                FileInputStream(filePath).use { inputStream ->
-                    val fileData = inputStream.readAllBytes()
-                    val base64InputStream = Base64.getEncoder().encode(fileData)
-                    call.respond(mapOf("content" to base64InputStream.toString()))
+                FileInputStream(resultObject).use { inputStream ->
+                    var result = ""
+                    val encoder = Base64.getEncoder()
+                    val buffer = ByteArray(10)
+                    var length = inputStream.read(buffer, 0, buffer.size)
+                    while (length != -1) {
+                        result += encoder.encode(buffer).joinToString(separator = "") { it.toString() }
+                        length = inputStream.read(buffer)
+                    }
+                    call.respond(mapOf("content" to result))
                 }
-
             }
         }
     }
