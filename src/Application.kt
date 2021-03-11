@@ -37,16 +37,8 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(resultObject.list())
             } else {
                 FileInputStream(resultObject).use { inputStream ->
-                    var result = ""
-                    val encoder = Base64.getEncoder()
-                    val buffer = ByteArray(10)
-                    var length = inputStream.read(buffer, 0, buffer.size)
-                    while (length != -1) {
-                        result += encoder.encode(buffer.take(length).toByteArray())
-                            .joinToString(separator = "") { it.toChar().toString() }
-//                        result += buffer.joinToString(separator = "") { it.toChar().toString() }
-                        length = inputStream.read(buffer)
-                    }
+                    val result = Base64.getEncoder().encode(inputStream.readAllBytes())
+                        .joinToString(separator = "") { it.toChar().toString() }
 
                     call.respond(mapOf("content" to result))
                 }
