@@ -34,10 +34,12 @@ fun Application.module(testing: Boolean = false) {
             if (resultObject.isDirectory) {
                 call.respond(resultObject.list())
             } else {
-                val fileInputStream = FileInputStream(filePath)
-                val fileData = fileInputStream.readAllBytes()
-                val base64InputStream = Base64.getEncoder().encode(fileData)
-                call.respond(mapOf("content" to base64InputStream.toString()))
+                FileInputStream(filePath).use { inputStream ->
+                    val fileData = inputStream.readAllBytes()
+                    val base64InputStream = Base64.getEncoder().encode(fileData)
+                    call.respond(mapOf("content" to base64InputStream.toString()))
+                }
+
             }
         }
     }
